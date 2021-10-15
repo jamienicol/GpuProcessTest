@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
         Log.d("MainActivity", "surfaceDestroyed()");
+        mRenderThread.onSurfaceChanged(null, 0, 0);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
