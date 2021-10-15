@@ -23,10 +23,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("MainActivity", "onCreate()");
 
-        super.onCreate(savedInstanceState);
-        mSurfaceView = new MySurfaceView(this, this);
-        setContentView(mSurfaceView);
-
         mRenderThread = new RenderThread();
         mRenderThread.start();
 
@@ -36,6 +32,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent bindIntent = new Intent(MainActivity.this, GpuProcessService.class);
         bindIntent.setAction(IGpuProcessService.class.getName());
         bindService(bindIntent, mConnection, Context.BIND_AUTO_CREATE);
+
+        super.onCreate(savedInstanceState);
+        mSurfaceView = new MySurfaceView(this, this);
+        setContentView(mSurfaceView);
     }
 
     @Override protected void onPause() {
