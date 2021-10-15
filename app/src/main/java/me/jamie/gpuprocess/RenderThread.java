@@ -23,12 +23,11 @@ public class RenderThread extends Thread {
     public void run() {
         while (true) {
             try {
-                sleep(16);
+                sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            Log.d("RenderThread", "Running iteration");
             synchronized(this) {
                 if (mInitialized == false) {
                     if (mSurface != null) {
@@ -36,12 +35,14 @@ public class RenderThread extends Thread {
 
                         mInitialized = true;
                     } else {
+                        Log.d("RenderThread", "No surface");
                         continue;
                     }
                 }
 
             }
 
+            Log.d("RenderThread", "Render");
             Canvas canvas = mSurface.lockCanvas(null);
             canvas.drawRGB(255, 0, 0);
             mSurface.unlockCanvasAndPost(canvas);

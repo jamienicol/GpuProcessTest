@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.Surface;
 
 public class GpuProcessService extends Service {
+    RenderThread mRenderThread;
+
     public GpuProcessService() {
         Log.d("GpuProcessService", "constructor");
     }
@@ -14,11 +17,15 @@ public class GpuProcessService extends Service {
     @Override
     public void onCreate() {
         Log.d("GpuProcessService", "onCreate");
+        mRenderThread = new RenderThread();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("GpuProcessService", "onStartCommand() " + startId + ": " + intent);
+
+        mRenderThread.start();
+
         return START_NOT_STICKY;
     }
 
@@ -32,8 +39,9 @@ public class GpuProcessService extends Service {
 
     private final IGpuProcessService.Stub mBinder = new IGpuProcessService.Stub() {
         @Override
-        public void hello(String name) throws RemoteException {
-            Log.d("GpuProcessService", String.format("Hello %s", name));
+        public void onSurfaceChanged(Surface surface, int width, int height) {
+            Log.d("GpuProcessService", String.format("onSurfaceChanged() %d %d", width, height));
+            mRenderThread.onSurfaceChanged(surface, width, height);
         }
     };
 }

@@ -16,15 +16,11 @@ import android.view.SurfaceHolder;
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
     MySurfaceView mSurfaceView;
-    RenderThread mRenderThread;
     IGpuProcessService mService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("MainActivity", "onCreate()");
-
-        mRenderThread = new RenderThread();
-        mRenderThread.start();
 
         Log.d("MainActivity", "Starting GPU process service");
         Intent startIntent = new Intent(MainActivity.this, GpuProcessService.class);
@@ -56,13 +52,30 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     public void surfaceChanged(@NonNull SurfaceHolder surfaceHolder, int format, int width, int height) {
         Log.d("MainActivity", String.format("surfaceChanged() format=%d, width=%d, height=%d", format, width, height));
-        mRenderThread.onSurfaceChanged(surfaceHolder.getSurface(), width, height);
+
+        try {
+            if (mService != null) {
+                mService.onSurfaceChanged(surfaceHolder.getSurface(), width, height);
+            } else {
+                Log.d("MainActivity", "Not connected to GpuProcessService");
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
         Log.d("MainActivity", "surfaceDestroyed()");
-        mRenderThread.onSurfaceChanged(null, 0, 0);
+        if (mService != null) {
+            try {
+                mService.onSurfaceChanged(null, 0, 0);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.d("MainActivity", "Not connected to GpuProcessService");
+        }
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -70,11 +83,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             Log.d("MainActivity", "onServiceConnected()");
             mService = IGpuProcessService.Stub.asInterface(iBinder);
-            try {
-                mService.hello("Jamie");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
         }
 
         @Override
