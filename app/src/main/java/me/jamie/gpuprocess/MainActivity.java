@@ -3,7 +3,13 @@ package me.jamie.gpuprocess;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
@@ -11,6 +17,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     MySurfaceView mSurfaceView;
     RenderThread mRenderThread;
+    IGpuProcessService mService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +29,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         mRenderThread = new RenderThread();
         mRenderThread.start();
+
+        Log.d("MainActivity", "Starting GPU process service");
+        Intent startIntent = new Intent(MainActivity.this, GpuProcessService.class);
+        startService(startIntent);
+        Intent bindIntent = new Intent(MainActivity.this, GpuProcessService.class);
+        bindIntent.setAction(IGpuProcessService.class.getName());
+        bindService(bindIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override protected void onPause() {
@@ -49,4 +63,23 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
         Log.d("MainActivity", "surfaceDestroyed()");
     }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Log.d("MainActivity", "onServiceConnected()");
+            mService = IGpuProcessService.Stub.asInterface(iBinder);
+            try {
+                mService.hello("Jamie");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d("MainActivity", "onServiceDisconnected()");
+            mService = null;
+        }
+    };
 }
