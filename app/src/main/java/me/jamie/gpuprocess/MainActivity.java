@@ -16,6 +16,10 @@ import android.view.SurfaceHolder;
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
     MySurfaceView mSurfaceView;
+    SurfaceHolder mSurfaceHolder;
+    int mFormat;
+    int mWidth, mHeight;
+
     IGpuProcessService mService;
 
     @Override
@@ -53,6 +57,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void surfaceChanged(@NonNull SurfaceHolder surfaceHolder, int format, int width, int height) {
         Log.d("MainActivity", String.format("surfaceChanged() format=%d, width=%d, height=%d", format, width, height));
 
+        mSurfaceHolder = surfaceHolder;
+        mWidth = width;
+        mHeight = height;
+
         try {
             if (mService != null) {
                 mService.onSurfaceChanged(surfaceHolder.getSurface(), width, height);
@@ -83,6 +91,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             Log.d("MainActivity", "onServiceConnected()");
             mService = IGpuProcessService.Stub.asInterface(iBinder);
+            if (mSurfaceHolder != null) {
+                try {
+                    mService.onSurfaceChanged(mSurfaceHolder.getSurface(), mWidth, mHeight);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         @Override
