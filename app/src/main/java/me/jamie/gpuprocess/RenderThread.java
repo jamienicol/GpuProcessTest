@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.Surface;
+import android.view.SurfaceControl;
 
 public class RenderThread extends Thread {
     Surface mSurface = null;
@@ -15,8 +16,10 @@ public class RenderThread extends Thread {
 
     float mRotation;
 
-    public synchronized void onSurfaceChanged(Surface surface, int width, int height) {
-        mSurface = surface;
+    public synchronized void onSurfaceChanged(SurfaceControl surfaceControl, int width, int height) {
+        mSurface = new Surface(surfaceControl);
+        SurfaceControl.Transaction transaction = new SurfaceControl.Transaction();
+        transaction.setBufferSize(surfaceControl, width, height).apply();
         mWidth = width;
         mHeight = height;
         mInitialized = false;

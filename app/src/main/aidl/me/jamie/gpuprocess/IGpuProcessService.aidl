@@ -1,8 +1,8 @@
 // IGpuProcessService.aidl
 package me.jamie.gpuprocess;
 
-import android.view.Surface;
+import android.view.SurfaceControl;
 
 interface IGpuProcessService {
-    void onSurfaceChanged(in Surface surface, int width, int height);
+    void onSurfaceChanged(in SurfaceControl surface, int width, int height);
 }

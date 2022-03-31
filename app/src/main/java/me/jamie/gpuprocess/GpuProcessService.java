@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Surface;
+import android.view.SurfaceControl;
 
 public class GpuProcessService extends Service {
     RenderThread mRenderThread;
@@ -39,9 +40,9 @@ public class GpuProcessService extends Service {
 
     private final IGpuProcessService.Stub mBinder = new IGpuProcessService.Stub() {
         @Override
-        public void onSurfaceChanged(Surface surface, int width, int height) {
+        public void onSurfaceChanged(SurfaceControl surfaceControl, int width, int height) {
             Log.d("GpuProcessService", String.format("onSurfaceChanged() %d %d", width, height));
-            mRenderThread.onSurfaceChanged(surface, width, height);
+            mRenderThread.onSurfaceChanged(surfaceControl, width, height);
         }
     };
 }

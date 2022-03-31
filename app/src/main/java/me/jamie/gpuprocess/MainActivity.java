@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         try {
             if (mService != null) {
-                mService.onSurfaceChanged(surfaceHolder.getSurface(), width, height);
+                mService.onSurfaceChanged(mSurfaceView.getSurfaceControl(), width, height);
             } else {
                 Log.d("MainActivity", "Not connected to GpuProcessService");
             }
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             mService = IGpuProcessService.Stub.asInterface(iBinder);
             if (mSurfaceHolder != null) {
                 try {
-                    mService.onSurfaceChanged(mSurfaceHolder.getSurface(), mWidth, mHeight);
+                    mService.onSurfaceChanged(mSurfaceView.getSurfaceControl(), mWidth, mHeight);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -104,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         public void onServiceDisconnected(ComponentName componentName) {
             Log.d("MainActivity", "onServiceDisconnected()");
             mService = null;
-
 
             Log.d("MainActivity", "Restarting GPU process service");
             Intent startIntent = new Intent(MainActivity.this, GpuProcessService.class);
