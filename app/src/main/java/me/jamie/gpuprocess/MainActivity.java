@@ -104,6 +104,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         public void onServiceDisconnected(ComponentName componentName) {
             Log.d("MainActivity", "onServiceDisconnected()");
             mService = null;
+
+
+            Log.d("MainActivity", "Restarting GPU process service");
+            Intent startIntent = new Intent(MainActivity.this, GpuProcessService.class);
+            startService(startIntent);
+            Intent bindIntent = new Intent(MainActivity.this, GpuProcessService.class);
+            bindIntent.setAction(IGpuProcessService.class.getName());
+            bindService(bindIntent, mConnection, Context.BIND_AUTO_CREATE);
         }
     };
 }
