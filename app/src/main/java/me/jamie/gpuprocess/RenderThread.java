@@ -1,6 +1,7 @@
 package me.jamie.gpuprocess;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
@@ -12,6 +13,8 @@ public class RenderThread extends Thread {
     int mHeight = 0;
     boolean mInitialized = false;
 
+    float mRotation;
+
     public synchronized void onSurfaceChanged(Surface surface, int width, int height) {
         mSurface = surface;
         mWidth = width;
@@ -22,12 +25,6 @@ public class RenderThread extends Thread {
     @Override
     public void run() {
         while (true) {
-            try {
-                sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
             synchronized(this) {
                 if (mInitialized == false) {
                     if (mSurface != null) {
@@ -42,9 +39,16 @@ public class RenderThread extends Thread {
 
             }
 
-            Log.d("RenderThread", "Render");
+            // Log.d("RenderThread", "Render");
             Canvas canvas = mSurface.lockCanvas(null);
-            canvas.drawRGB(255, 0, 0);
+            canvas.drawRGB(0, 0, 0);
+            canvas.save();
+            canvas.rotate(mRotation, mWidth / 2, mHeight / 2);
+            mRotation = (mRotation + 1) % 360;
+            Paint paint = new Paint();
+            paint.setColor(Color.RED);
+            canvas.drawRect(mWidth / 2 - 200, mHeight / 2 - 200, mWidth / 2 + 200, mHeight / 2 + 200, paint);
+            canvas.restore();
             mSurface.unlockCanvasAndPost(canvas);
         }
     }
